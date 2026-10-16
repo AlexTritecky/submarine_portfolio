@@ -1,5 +1,7 @@
 (() => {
-  /* ================= Filters ================= */
+  /* ================= Filters (home page only) ================= */
+  if (document.querySelector('.filters')) initFilters();
+  function initFilters() {
   const cards = [...document.querySelectorAll('.case-card')];
   const realCards = cards.filter((c) => !c.hasAttribute('data-soon'));
   const filters = [...document.querySelectorAll('.filter')];
@@ -90,6 +92,7 @@
   document.addEventListener('click', (e) => { if (!e.target.closest('.filter')) closeAll(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
   apply();
+  }
 
   /* ================= Scroll-triggered fade ================= */
   // Every [data-scroll] block fades out as it leaves the top of the viewport
