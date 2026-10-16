@@ -71,9 +71,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hero { height: 100vh; height: 100svh; min-height: 560px; }
 .hero__inner { position: relative; height: 100%; padding: 0 var(--gutter) 0 0; overflow: hidden; }
 .hero__word {
-  margin: 0; color: var(--cream); font-weight: 900; text-transform: uppercase;
+  margin: 84px 0 0; color: var(--cream); font-weight: 900; text-transform: uppercase;
   font-size: clamp(96px, 20.5vw, 440px); line-height: .8; letter-spacing: -.075em;
-  transform: translate(-.05em, -.06em);
+  transform: translateX(-.05em);
 }
 .hero__word span { display: flex; align-items: center; gap: .15em; }
 .hero__flower { width: .4em; height: .4em; margin-left: .1em; animation: float 5s ease-in-out infinite; }
