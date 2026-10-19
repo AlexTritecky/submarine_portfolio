@@ -273,7 +273,7 @@ def feed_set(main, posts, index):
     cols = [posts[i::3] for i in range(3)]  # column-wise, like the original slide
     col_html = "\n".join(
         '              <div class="feed__col">'
-        + "".join(f'<figure class="feed__post" style="--d:{c + 1};--r:{(-1) ** (c + r) * 3}deg">{img(n, a, "(min-width: 900px) 18vw, 30vw")}</figure>'
+        + "".join(f'<figure class="feed__post" style="--d:{c + 1 + r * 0.6:g};--r:{(-1) ** (c + r) * 3}deg">{img(n, a, "(min-width: 900px) 18vw, 30vw")}</figure>'
                   for r, (n, a) in enumerate(col))
         + "</div>"
         for c, col in enumerate(cols))
@@ -291,9 +291,11 @@ def feed_set(main, posts, index):
 def feed(label, *sets):
     """Pinned stage: while it scrolls by, each set of posts flies in, then leaves for the next one."""
     body = "".join(feed_set(m, posts, i) for i, (m, posts) in enumerate(sets))
+    bars = "".join('<i class="feed__bar"></i>' for _ in sets)
     return f'''
       <section class="feed" aria-label="{label}" style="--sets:{len(sets)}">
         <div class="feed__stage container">{body}
+          <div class="feed__progress" aria-hidden="true"><b class="feed__count">01</b><span>/ {len(sets):02d}</span>{bars}</div>
         </div>
       </section>'''
 

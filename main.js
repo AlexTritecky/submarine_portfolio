@@ -220,44 +220,117 @@
   const heroLines = hero ? [...hero.querySelectorAll('.hero__word > span')] : [];
   const footerWord = document.querySelector('.footer__word');
 
-  // Instagram feed: the stage is pinned; scroll progress picks which set of
-  // posts is on stage (earlier sets fly out above, later ones wait below)
-  // and drifts the current set upward so its lower rows come into view.
+  // Instagram feed: the stage is pinned and every post is scrubbed by scroll
+  // position, so the swap follows the scroll instead of firing at once.
+  // Per post: a = how far it has arrived (0 below → 1 in place),
+  //           b = how far it has left (0 in place → 1 gone above).
+  const smooth = (t) => t * t * (3 - 2 * t);
   const feeds = [...document.querySelectorAll('.feed')].map((el) => ({
     el,
     stage: el.querySelector('.feed__stage'),
-    sets: [...el.querySelectorAll('.feed__set')],
-    current: null,
+    progress: el.querySelector('.feed__progress'),
+    count: el.querySelector('.feed__count'),
+    bars: [...el.querySelectorAll('.feed__bar')],
+    sets: [...el.querySelectorAll('.feed__set')].map((set) => ({
+      el: set,
+      inner: set.querySelector('.feed__inner'),
+      grid: set.querySelector('.feed__grid'),
+      posts: [...set.querySelectorAll('.feed__post')].map((post) => ({
+        el: post,
+        img: post.querySelector('img'),
+        main: post.classList.contains('feed__post--main'),
+        d: parseFloat(post.style.getPropertyValue('--d')) || 0,
+        r: parseFloat(post.style.getPropertyValue('--r')) || 0,
+        last: '',
+      })),
+    })),
   }));
-  function setFeed(f, idx) {
-    if (f.current === idx) return;
-    f.current = idx;
-    f.sets.forEach((set, j) => {
-      set.classList.toggle('is-current', j === idx);
-      set.querySelectorAll('.feed__post').forEach((p) => {
-        p.classList.toggle('is-in', j === idx);
-        p.classList.toggle('is-out', idx !== -1 && j < idx);
-      });
-    });
+
+  // Within one set's slice of the pinned scroll: rows drift up first,
+  // then the set hands over to the next one.
+  const DRIFT = [0.06, 0.6];   // drift window
+  const OUT = [0.6, 0.9];      // this set leaves
+  const IN = [0.7, 1.0];       // next set arrives (overlaps the exit)
+  const MAXD = 4.2;            // largest --d (diagonal wave: column + 0.6 × row)
+  const STAGGER = 0.035;       // delay per wave step inside a window
+  const win = (t, [a, b], d = 0) => smooth(clamp((t - a - d * STAGGER) / (b - a - MAXD * STAGGER)));
+
+  function paintPost(p, a, b) {
+    const vis = a * (1 - b);
+    let tf, blur, clip = '', imgTf = '';
+    if (reduced) {
+      tf = 'none'; blur = 0;
+    } else if (p.main) {
+      // lead post: curtain reveal from the bottom, photo settles from a slight zoom
+      const y = -b * 140;
+      tf = `perspective(1400px) translate3d(0,${y.toFixed(1)}px,0) rotateX(${(-14 * b).toFixed(2)}deg) scale(${(1 - 0.08 * b).toFixed(3)})`;
+      clip = `inset(${((1 - a) * 100).toFixed(1)}% 0 0 0 round 18px)`;
+      imgTf = `scale(${(1 + 0.18 * (1 - a)).toFixed(3)})`;
+      blur = 10 * b;
+    } else {
+      const y = (1 - a) * 140 - b * 160;
+      const rx = 24 * (1 - a) - 20 * b;
+      const rot = p.r * (1 - a) - p.r * b;
+      const sc = 1 - 0.14 * (1 - a) - 0.1 * b;
+      tf = `perspective(1200px) translate3d(0,${y.toFixed(1)}px,${(-160 * (1 - a) - 120 * b).toFixed(0)}px) rotateX(${rx.toFixed(2)}deg) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      blur = 10 * (1 - a) + 10 * b;
+    }
+    const op = p.main ? Math.min(1, a * 4) * (1 - b) : vis;
+    const key = `${op.toFixed(3)}|${tf}|${blur.toFixed(1)}|${clip}|${imgTf}`;
+    if (key === p.last) return;
+    p.last = key;
+    p.el.style.opacity = op.toFixed(3);
+    p.el.style.transform = tf;
+    p.el.style.filter = blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : 'none';
+    if (p.main) {
+      p.el.style.clipPath = clip;
+      p.img.style.transform = imgTf;
+    }
   }
+
+  // Start loading every feed photo well before the stage arrives, so posts never fly in empty.
+  if ('IntersectionObserver' in window) {
+    const pre = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('img[loading="lazy"]').forEach((im) => { im.loading = 'eager'; });
+      pre.unobserve(e.target);
+    }), { rootMargin: '200% 0px' });
+    feeds.forEach((f) => pre.observe(f.el));
+  }
+
   function updateFeeds(vh) {
     const mobile = window.innerWidth < 900;
+    const header = topbar.offsetHeight;
     for (const f of feeds) {
       const r = f.el.getBoundingClientRect();
-      const header = topbar.offsetHeight;
+      if (r.bottom < -vh || r.top > vh * 2) continue;
       const travel = Math.max(1, f.el.offsetHeight - f.stage.offsetHeight);
-      const p = clamp((header - r.top) / travel);
       const n = f.sets.length;
-      const idx = r.top > vh * 0.45 ? -1 : Math.min(n - 1, Math.floor(p * n));
-      setFeed(f, idx);
-      if (idx < 0 || reduced) continue;
-      // drift the current set so rows hidden below the stage edge scroll into view
-      const set = f.sets[idx];
-      const target = mobile ? set.querySelector('.feed__inner') : set.querySelector('.feed__grid');
-      const overflow = Math.max(0, target.offsetTop + target.offsetHeight - f.stage.clientHeight + 24);
-      const local = clamp(p * n - idx);
-      const eased = local < 0.15 ? 0 : clamp((local - 0.15) / 0.7);
-      target.style.transform = `translateY(${(-overflow * eased).toFixed(1)}px)`;
+      const pos = clamp((header - r.top) / travel) * n;          // 0 … n across the pinned scroll
+      const enter = clamp((vh - r.top) / Math.max(1, vh - header)); // first set arrives while the stage scrolls up
+      f.sets.forEach((set, i) => {
+        const local = pos - i;                                   // this set's own slice
+        set.posts.forEach((p) => {
+          const a = i === 0 ? win(enter, [0.15, 1], p.d) : win(local + 1, IN, p.d);
+          const b = i === n - 1 ? 0 : win(local, OUT, p.d);
+          paintPost(p, a, b);
+        });
+        const active = (i === 0 ? enter > 0.5 : local + 1 > IN[1] - 0.1) && (i === n - 1 || local < OUT[0] + 0.1);
+        set.el.classList.toggle('is-current', active);
+        if (reduced) return;
+        // drift the set so rows hidden below the stage edge scroll into view
+        const target = mobile ? set.inner : set.grid;
+        const overflow = Math.max(0, target.offsetTop + target.offsetHeight - f.stage.clientHeight + 24);
+        const drift = i === n - 1 ? smooth(clamp((local - DRIFT[0]) / (0.9 - DRIFT[0]))) : win(local, DRIFT);
+        target.style.transform = `translate3d(0,${(-overflow * drift).toFixed(1)}px,0)`;
+      });
+      if (f.progress) {
+        const on = enter > 0.6 && pos < n - 0.05;
+        f.progress.classList.toggle('is-on', on);
+        f.bars.forEach((bar, i) => bar.style.setProperty('--fill', clamp(i === 0 ? Math.max(pos, enter > 0.99 ? 0.02 : 0) : pos - i).toFixed(3)));
+        const shown = Math.min(n, Math.floor(pos + 1 - (IN[0] - 0.05)) + 1);
+        f.count.textContent = String(clamp(shown, 1, n)).padStart(2, '0');
+      }
     }
   }
 

@@ -285,7 +285,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .next-case__card .card-title { font-size: clamp(24px, 2.6vw, 40px); text-transform: uppercase; font-weight: 900; color: var(--accent-cream); }
 
 /* ---------- Instagram feed: pinned stage, sets swap on scroll ---------- */
-.feed { position: relative; height: calc(var(--sets, 1) * 140svh); }
+.feed { position: relative; height: calc(var(--sets, 1) * 170svh); }
 .feed__stage {
   position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h));
   overflow: hidden;
@@ -305,26 +305,33 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .feed__col:nth-child(2) { margin-top: var(--s7); }
 .feed__col:nth-child(3) { margin-top: var(--s5); }
 .feed__post {
-  margin: 0; border-radius: 14px; overflow: hidden; background: #fff;
+  margin: 0; border-radius: 14px; overflow: hidden; background: var(--surface);
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .8);
 }
 .feed__post img { width: 100%; height: auto; }
 .feed__post--main { border-radius: 18px; }
 
-/* waiting below → in → gone above */
-.js .feed__post {
-  opacity: 0; filter: blur(8px);
-  transform: translateY(110px) rotate(var(--r, 3deg)) scale(.88);
-  transition: opacity .8s var(--ease), filter .8s var(--ease), transform 1s cubic-bezier(.16, 1, .3, 1), box-shadow .45s;
-  transition-delay: calc(var(--d, 0) * 110ms);
+/* progress: which set is on stage */
+.feed__progress {
+  position: absolute; left: 0; bottom: var(--s4); z-index: 2;
+  display: flex; align-items: center; gap: var(--s2);
+  padding: var(--s2) var(--s3); border-radius: 999px;
+  background: rgba(30, 33, 38, .75); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid var(--line); font-size: var(--fs-small); color: var(--text-muted);
+  opacity: 0; transition: opacity .4s;
 }
-.js .feed__post.is-in { opacity: 1; filter: none; transform: none; }
-.js .feed__post.is-out { opacity: 0; filter: blur(8px); transform: translateY(-120px) rotate(calc(var(--r, 3deg) * -1)) scale(.9); }
-.feed__set.is-current .feed__post.is-in:hover {
-  transform: translateY(-8px) rotate(-1.5deg) scale(1.03);
-  box-shadow: 0 40px 70px -30px rgba(0, 0, 0, .9);
-  transition-delay: 0s; transition-duration: .45s;
-}
+.feed__progress.is-on { opacity: 1; }
+.feed__count { color: var(--accent-cream); font-weight: 800; min-width: 2ch; }
+.feed__bar { position: relative; width: 48px; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.feed__bar::after { content: ""; position: absolute; inset: 0; background: var(--accent-pink); transform: scaleX(var(--fill, 0)); transform-origin: left; }
+.feed__bar:first-of-type { margin-left: var(--s2); }
+
+/* posts are positioned by scroll (main.js); hover only lifts the shadow and zooms the photo */
+.js .feed__post { opacity: 0; will-change: transform, opacity, filter; transition: box-shadow .45s; }
+.feed__post img { transition: transform .6s var(--ease); transform-origin: 50% 60%; }
+.feed__post--main img { transition: none; }
+.feed__set.is-current .feed__post:hover { box-shadow: 0 40px 70px -30px rgba(0, 0, 0, .9); }
+.feed__set.is-current .feed__post:not(.feed__post--main):hover img { transform: scale(1.04); }
 
 /* =========================================================
    Footer
@@ -380,7 +387,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .js .topbar { animation: none; }
   [data-scroll] { opacity: 1 !important; transform: none !important; }
   .js .line__in, .js [data-stagger] > *, .js .hero__shot, .js .case-card, .js .case-card .media img { transform: none !important; opacity: 1 !important; filter: none !important; transition: none !important; }
-  .feed__post { transition: opacity .3s !important; transform: none !important; filter: none !important; }
   .feed__inner, .feed__grid { transform: none !important; }
   .hero__shot--1 { transform: rotate(5deg) !important; }
   .hero__shot--2 { transform: rotate(-6deg) !important; }
