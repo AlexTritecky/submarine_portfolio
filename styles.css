@@ -238,19 +238,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* =========================================================
    Case pages
    ========================================================= */
-.case-intro {
-  height: 100vh; height: 100svh; min-height: 520px;
-  display: grid; place-content: center; justify-items: center; gap: clamp(40px, 8vh, 96px);
-}
-.case-intro__badge { width: clamp(128px, 11vw, 200px); animation: float 6s ease-in-out infinite; }
-.case-intro__logo { width: clamp(260px, 31vw, 560px); }
-.case-intro__logo--tall { width: clamp(220px, 24vw, 460px); }
 
 .case-hero__top { display: flex; justify-content: space-between; gap: var(--s3); font-size: var(--fs-small); letter-spacing: .04em; color: var(--text-muted); }
 .case-hero__top span:first-child { color: var(--text); font-weight: 700; }
 .case-hero__body { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: var(--s6); align-items: center; margin-top: var(--s5); }
 .case-hero__brand { display: grid; justify-items: start; gap: var(--s4); }
-.case-hero__brand img { max-height: clamp(80px, 12vw, 200px); width: auto; }
+.case-hero { padding-top: calc(var(--header-h) + var(--s6)); }
+.case-hero__logo { margin: 0; }
+.case-hero__logo img { max-height: clamp(80px, 12vw, 200px); width: auto; }
 .case-hero__tagline { margin: 0; font-weight: 900; text-transform: uppercase; font-size: clamp(24px, 2.4vw, 36px); line-height: 1; letter-spacing: -.02em; color: var(--accent-cream); }
 .case-hero__kpi { margin: 0; padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: 999px; font-size: var(--fs-small); font-weight: 700; }
 .case-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); margin: var(--s7) 0 0; padding-top: var(--s5); border-top: 1px solid var(--line); }
@@ -328,7 +323,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
   html:not(.lenis) { scroll-behavior: auto; }
-  .hero__flower, .case-intro__badge, .marquee__track { animation: none; }
+  .hero__flower, .marquee__track { animation: none; }
   .js .topbar { animation: none; }
   [data-scroll] { opacity: 1 !important; transform: none !important; }
   .js .line__in, .js [data-stagger] > *, .js .hero__shot { transform: none !important; opacity: 1 !important; transition: none !important; }

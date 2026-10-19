@@ -293,7 +293,7 @@ def kpis(*items):
       </div>'''
 
 
-def case_page(key, num, logo, logo_alt, logo_cls, partner, period, tagline, facts, content):
+def case_page(key, num, logo, logo_alt, partner, period, tagline, facts, content):
     c = CASES[key]
     i = ORDER.index(key)
     nxt = ORDER[(i + 1) % len(ORDER)]
@@ -301,19 +301,14 @@ def case_page(key, num, logo, logo_alt, logo_cls, partner, period, tagline, fact
     li = lambda xs: "".join(f"<li>{x}</li>" for x in xs)
     return f'''
   <article class="case">
-    <section class="case-intro pin" data-scroll>
-      <img class="case-intro__badge" src="assets/img/case-badge-{num}.webp" alt="Кейс {num}" width="264" height="264">
-      <img class="case-intro__logo {logo_cls}" src="assets/img/{logo}.webp" alt="{logo_alt}" {dims(logo)} fetchpriority="high">
-    </section>
-
     <div class="layer">
       <section class="case-hero section" data-scroll>
         <div class="container">
           <div class="case-hero__top"><span>{partner} × SUBMARINE</span><span>Період співпраці: {period}</span></div>
           <div class="case-hero__body">
-            <div class="media">{img(f"{key}-hero", c["alt"], "(min-width: 900px) 62vw, 100vw")}</div>
+            <div class="media">{img(f"{key}-hero", c["alt"], "(min-width: 900px) 62vw, 100vw", priority=True)}</div>
             <div class="case-hero__brand">
-              <img src="assets/img/{logo}.webp" alt="" {dims(logo)} loading="lazy">
+              <h1 class="case-hero__logo"><img src="assets/img/{logo}.webp" alt="{logo_alt}" {dims(logo)} fetchpriority="high"></h1>
               <p class="case-hero__tagline">{tagline}</p>
               <p class="case-hero__kpi">{c["kpi"]}</p>
             </div>
@@ -340,7 +335,7 @@ def case_page(key, num, logo, logo_alt, logo_cls, partner, period, tagline, fact
 
 
 OKKO = case_page(
-    "okko", 1, "okko-logo", "OKKO", "", "OKKO", "2018–2025", "8 років у режимі non-stop",
+    "okko", 1, "okko-logo", "OKKO", "OKKO", "2018–2025", "8 років у режимі non-stop",
     ("АЗК та автомобільний сектор", ["Стратегія", "SMM", "Креатив", "Продакшн", "Спецпроєкти"],
      ["Instagram", "Facebook", "Digital Media"]),
     stage("Задача", "8 років комунікації, яка не зупиняється",
@@ -359,7 +354,7 @@ OKKO = case_page(
 )
 
 SAMOKUS = case_page(
-    "samokus", 2, "samokus-logo", "Samokus", "case-intro__logo--tall", "SAMOKUS", "травень–червень 2026",
+    "samokus", 2, "samokus-logo", "Samokus", "SAMOKUS", "травень–червень 2026",
     "Морозимо для тих, кого любимо",
     ("Pet Care", ["SMM-стратегія", "Комплексний SMM", "Креатив", "Продакшн", "Key visual", "Медіа та інфлюенс-маркетинг"],
      ["Instagram", "UGC / UGC Creators", "Creative Production", "Consulting"]),
@@ -384,7 +379,7 @@ SAMOKUS = case_page(
 )
 
 KURIAR = case_page(
-    "kuriar", 3, "kuriar-logo", "Куріяр", "case-intro__logo--tall", "КУРІЯР", "лютий 2026 — дотепер",
+    "kuriar", 3, "kuriar-logo", "Куріяр", "КУРІЯР", "лютий 2026 — дотепер",
     "Від виробництва до вашої стрічки",
     ("FMCG / Продукти та напої", ["SMM-стратегія", "Комплексний SMM", "Креатив", "Продакшн", "Медіа та інфлюенс-маркетинг"],
      ["Instagram", "Facebook", "AI Generation", "Meta Ads", "Фото- та відеопродакшн"]),
