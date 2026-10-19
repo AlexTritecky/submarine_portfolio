@@ -122,20 +122,20 @@
     footer && footer.classList.add('is-revealed');
   }
 
-  /* ================= Feed posts & case cards fly in ================= */
-  const feedPosts = document.querySelectorAll('.feed__post, .case-card');
+  /* ================= Case cards fly in ================= */
+  const feedPosts = document.querySelectorAll('.case-card');
   if (feedPosts.length) {
     if ('IntersectionObserver' in window && !reduced) {
       const fio = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (!e.isIntersecting) return;
-          e.target.classList.add(e.target.classList.contains('case-card') ? 'is-shown' : 'is-in');
+          e.target.classList.add('is-shown');
           fio.unobserve(e.target);
         });
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
       feedPosts.forEach((p) => fio.observe(p));
     } else {
-      feedPosts.forEach((p) => p.classList.add(p.classList.contains('case-card') ? 'is-shown' : 'is-in'));
+      feedPosts.forEach((p) => p.classList.add('is-shown'));
     }
   }
 
@@ -220,9 +220,46 @@
   const heroLines = hero ? [...hero.querySelectorAll('.hero__word > span')] : [];
   const footerWord = document.querySelector('.footer__word');
 
-  // Feed columns drift at different speeds while the section scrolls by.
-  const FEED_SPEED = [60, -90, 30];
-  const feeds = [...document.querySelectorAll('.feed')].map((el) => ({ el, cols: [...el.querySelectorAll('.feed__col')] }));
+  // Instagram feed: the stage is pinned; scroll progress picks which set of
+  // posts is on stage (earlier sets fly out above, later ones wait below)
+  // and drifts the current set upward so its lower rows come into view.
+  const feeds = [...document.querySelectorAll('.feed')].map((el) => ({
+    el,
+    stage: el.querySelector('.feed__stage'),
+    sets: [...el.querySelectorAll('.feed__set')],
+    current: null,
+  }));
+  function setFeed(f, idx) {
+    if (f.current === idx) return;
+    f.current = idx;
+    f.sets.forEach((set, j) => {
+      set.classList.toggle('is-current', j === idx);
+      set.querySelectorAll('.feed__post').forEach((p) => {
+        p.classList.toggle('is-in', j === idx);
+        p.classList.toggle('is-out', idx !== -1 && j < idx);
+      });
+    });
+  }
+  function updateFeeds(vh) {
+    const mobile = window.innerWidth < 900;
+    for (const f of feeds) {
+      const r = f.el.getBoundingClientRect();
+      const header = topbar.offsetHeight;
+      const travel = Math.max(1, f.el.offsetHeight - f.stage.offsetHeight);
+      const p = clamp((header - r.top) / travel);
+      const n = f.sets.length;
+      const idx = r.top > vh * 0.45 ? -1 : Math.min(n - 1, Math.floor(p * n));
+      setFeed(f, idx);
+      if (idx < 0 || reduced) continue;
+      // drift the current set so rows hidden below the stage edge scroll into view
+      const set = f.sets[idx];
+      const target = mobile ? set.querySelector('.feed__inner') : set.querySelector('.feed__grid');
+      const overflow = Math.max(0, target.offsetTop + target.offsetHeight - f.stage.clientHeight + 24);
+      const local = clamp(p * n - idx);
+      const eased = local < 0.15 ? 0 : clamp((local - 0.15) / 0.7);
+      target.style.transform = `translateY(${(-overflow * eased).toFixed(1)}px)`;
+    }
+  }
 
   const blocks = [...document.querySelectorAll('[data-scroll]')].map((el) => ({
     el,
@@ -234,8 +271,8 @@
   function update() {
     ticking = false;
     setHeader();
-    if (reduced) return;
     const vh = window.innerHeight;
+    if (reduced) { updateFeeds(vh); return; }
     for (const b of blocks) {
       let o, t;
       if (b.pin && getComputedStyle(b.el).position === 'sticky') {
@@ -258,13 +295,7 @@
       b.el.style.transform = t;
       b.el.style.visibility = o <= 0.001 ? 'hidden' : '';
     }
-    for (const f of feeds) {
-      const r = f.el.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > vh) continue;
-      const p = clamp((vh - r.top) / (vh + r.height));
-      const k = window.innerWidth < 900 ? 0.4 : 1;
-      f.cols.forEach((c, i) => { c.style.transform = `translateY(${((p - 0.5) * FEED_SPEED[i] * k).toFixed(1)}px)`; });
-    }
+    updateFeeds(vh);
     if (footerWord) {
       const r = footerWord.getBoundingClientRect();
       if (r.top < vh && r.bottom > 0) {

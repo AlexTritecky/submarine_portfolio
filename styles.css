@@ -284,29 +284,43 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .next-case__card { max-width: 760px; }
 .next-case__card .card-title { font-size: clamp(24px, 2.6vw, 40px); text-transform: uppercase; font-weight: 900; color: var(--accent-cream); }
 
-/* ---------- Instagram feed ---------- */
-.feed { padding-block: var(--s7) var(--section); overflow: clip; }
-.feed__inner { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr); gap: var(--s7); align-items: start; }
-.feed__lead { position: sticky; top: calc(var(--header-h) + var(--s6)); }
-.feed__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); }
-.feed__col { display: grid; gap: var(--s4); align-content: start; will-change: transform; }
+/* ---------- Instagram feed: pinned stage, sets swap on scroll ---------- */
+.feed { position: relative; height: calc(var(--sets, 1) * 140svh); }
+.feed__stage {
+  position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h));
+  overflow: hidden;
+}
+.feed__set { position: absolute; inset: 0; pointer-events: none; }
+.feed__set.is-current { pointer-events: auto; }
+.feed__inner {
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr); gap: var(--s7);
+  align-items: start; padding-top: var(--s5); will-change: transform;
+}
+.feed__lead { align-self: start; height: calc(100svh - var(--header-h) - 2 * var(--s5)); display: flex; align-items: center; justify-content: center; }
+.feed__lead .feed__post { max-height: 100%; }
+.feed__lead img { max-height: calc(100svh - var(--header-h) - 2 * var(--s5)); width: auto; }
+.feed__post--main { width: fit-content; margin-inline: auto; }
+.feed__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); will-change: transform; }
+.feed__col { display: grid; gap: var(--s4); align-content: start; }
 .feed__col:nth-child(2) { margin-top: var(--s7); }
 .feed__col:nth-child(3) { margin-top: var(--s5); }
 .feed__post {
   margin: 0; border-radius: 14px; overflow: hidden; background: #fff;
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .8);
-  transition: transform .45s var(--ease), box-shadow .45s;
 }
 .feed__post img { width: 100%; height: auto; }
 .feed__post--main { border-radius: 18px; }
+
+/* waiting below → in → gone above */
 .js .feed__post {
   opacity: 0; filter: blur(8px);
-  transform: translateY(90px) rotate(var(--r, 3deg)) scale(.88);
-  transition: opacity .9s var(--ease), filter .9s var(--ease), transform 1.1s cubic-bezier(.16, 1, .3, 1), box-shadow .45s;
-  transition-delay: calc(var(--d, 0) * 120ms);
+  transform: translateY(110px) rotate(var(--r, 3deg)) scale(.88);
+  transition: opacity .8s var(--ease), filter .8s var(--ease), transform 1s cubic-bezier(.16, 1, .3, 1), box-shadow .45s;
+  transition-delay: calc(var(--d, 0) * 110ms);
 }
 .js .feed__post.is-in { opacity: 1; filter: none; transform: none; }
-.feed__post.is-in:hover, .feed__post:hover {
+.js .feed__post.is-out { opacity: 0; filter: blur(8px); transform: translateY(-120px) rotate(calc(var(--r, 3deg) * -1)) scale(.9); }
+.feed__set.is-current .feed__post.is-in:hover {
   transform: translateY(-8px) rotate(-1.5deg) scale(1.03);
   box-shadow: 0 40px 70px -30px rgba(0, 0, 0, .9);
   transition-delay: 0s; transition-duration: .45s;
@@ -365,8 +379,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .hero__flower, .marquee__track { animation: none; }
   .js .topbar { animation: none; }
   [data-scroll] { opacity: 1 !important; transform: none !important; }
-  .js .line__in, .js [data-stagger] > *, .js .hero__shot, .js .feed__post, .js .case-card, .js .case-card .media img { transform: none !important; opacity: 1 !important; filter: none !important; transition: none !important; }
-  .feed__col { transform: none !important; }
+  .js .line__in, .js [data-stagger] > *, .js .hero__shot, .js .case-card, .js .case-card .media img { transform: none !important; opacity: 1 !important; filter: none !important; transition: none !important; }
+  .feed__post { transition: opacity .3s !important; transform: none !important; filter: none !important; }
+  .feed__inner, .feed__grid { transform: none !important; }
   .hero__shot--1 { transform: rotate(5deg) !important; }
   .hero__shot--2 { transform: rotate(-6deg) !important; }
   .hero__shot--3 { transform: rotate(2deg) !important; }
@@ -395,8 +410,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .story__text { padding-top: 0; }
   .case-facts { grid-template-columns: 1fr; gap: var(--s4); }
   .case-hero__top { flex-direction: column; }
-  .feed__inner { grid-template-columns: 1fr; gap: var(--s6); }
-  .feed__lead { position: static; max-width: 420px; }
+  .feed__inner { grid-template-columns: 1fr; gap: var(--s4); padding-top: var(--s3); }
+  .feed__lead { height: auto; }
+  .feed__lead .feed__post, .feed__lead img { max-height: 34svh; }
   .feed__grid, .feed__col { gap: var(--s2); }
   .feed__col:nth-child(2) { margin-top: var(--s5); }
   .feed__col:nth-child(3) { margin-top: var(--s4); }
