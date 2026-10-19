@@ -273,6 +273,34 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .next-case__card { max-width: 760px; }
 .next-case__card .card-title { font-size: clamp(24px, 2.6vw, 40px); text-transform: uppercase; font-weight: 900; color: var(--accent-cream); }
 
+/* ---------- Instagram feed ---------- */
+.feed { padding-block: var(--s7) var(--section); overflow: clip; }
+.feed__inner { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr); gap: var(--s7); align-items: start; }
+.feed__lead { position: sticky; top: calc(var(--header-h) + var(--s6)); }
+.feed__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); }
+.feed__col { display: grid; gap: var(--s4); align-content: start; will-change: transform; }
+.feed__col:nth-child(2) { margin-top: var(--s7); }
+.feed__col:nth-child(3) { margin-top: var(--s5); }
+.feed__post {
+  margin: 0; border-radius: 14px; overflow: hidden; background: #fff;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .8);
+  transition: transform .45s var(--ease), box-shadow .45s;
+}
+.feed__post img { width: 100%; height: auto; }
+.feed__post--main { border-radius: 18px; }
+.js .feed__post {
+  opacity: 0; filter: blur(8px);
+  transform: translateY(90px) rotate(var(--r, 3deg)) scale(.88);
+  transition: opacity .9s var(--ease), filter .9s var(--ease), transform 1.1s cubic-bezier(.16, 1, .3, 1), box-shadow .45s;
+  transition-delay: calc(var(--d, 0) * 120ms);
+}
+.js .feed__post.is-in { opacity: 1; filter: none; transform: none; }
+.feed__post.is-in:hover, .feed__post:hover {
+  transform: translateY(-8px) rotate(-1.5deg) scale(1.03);
+  box-shadow: 0 40px 70px -30px rgba(0, 0, 0, .9);
+  transition-delay: 0s; transition-duration: .45s;
+}
+
 /* =========================================================
    Footer
    ========================================================= */
@@ -326,7 +354,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .hero__flower, .marquee__track { animation: none; }
   .js .topbar { animation: none; }
   [data-scroll] { opacity: 1 !important; transform: none !important; }
-  .js .line__in, .js [data-stagger] > *, .js .hero__shot { transform: none !important; opacity: 1 !important; transition: none !important; }
+  .js .line__in, .js [data-stagger] > *, .js .hero__shot, .js .feed__post { transform: none !important; opacity: 1 !important; filter: none !important; transition: none !important; }
+  .feed__col { transform: none !important; }
   .hero__shot--1 { transform: rotate(5deg) !important; }
   .hero__shot--2 { transform: rotate(-6deg) !important; }
   .hero__shot--3 { transform: rotate(2deg) !important; }
@@ -355,6 +384,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .story__text { padding-top: 0; }
   .case-facts { grid-template-columns: 1fr; gap: var(--s4); }
   .case-hero__top { flex-direction: column; }
+  .feed__inner { grid-template-columns: 1fr; gap: var(--s6); }
+  .feed__lead { position: static; max-width: 420px; }
+  .feed__grid, .feed__col { gap: var(--s2); }
+  .feed__col:nth-child(2) { margin-top: var(--s5); }
+  .feed__col:nth-child(3) { margin-top: var(--s4); }
+  .feed__post { border-radius: 8px; }
 }
 @media (max-width: 600px) {
   .cards--2, .cards--3 { grid-template-columns: 1fr; }

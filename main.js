@@ -122,6 +122,23 @@
     footer && footer.classList.add('is-revealed');
   }
 
+  /* ================= Instagram feed: posts fly in ================= */
+  const feedPosts = document.querySelectorAll('.feed__post');
+  if (feedPosts.length) {
+    if ('IntersectionObserver' in window && !reduced) {
+      const fio = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('is-in');
+          fio.unobserve(e.target);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+      feedPosts.forEach((p) => fio.observe(p));
+    } else {
+      feedPosts.forEach((p) => p.classList.add('is-in'));
+    }
+  }
+
   /* ================= Page transitions ================= */
   const veil = document.querySelector('.page-transition');
   const root = document.documentElement;
@@ -203,6 +220,10 @@
   const heroLines = hero ? [...hero.querySelectorAll('.hero__word > span')] : [];
   const footerWord = document.querySelector('.footer__word');
 
+  // Feed columns drift at different speeds while the section scrolls by.
+  const FEED_SPEED = [60, -90, 30];
+  const feeds = [...document.querySelectorAll('.feed')].map((el) => ({ el, cols: [...el.querySelectorAll('.feed__col')] }));
+
   const blocks = [...document.querySelectorAll('[data-scroll]')].map((el) => ({
     el,
     pin: el.classList.contains('pin'),
@@ -236,6 +257,13 @@
       b.el.style.opacity = o.toFixed(3);
       b.el.style.transform = t;
       b.el.style.visibility = o <= 0.001 ? 'hidden' : '';
+    }
+    for (const f of feeds) {
+      const r = f.el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) continue;
+      const p = clamp((vh - r.top) / (vh + r.height));
+      const k = window.innerWidth < 900 ? 0.4 : 1;
+      f.cols.forEach((c, i) => { c.style.transform = `translateY(${((p - 0.5) * FEED_SPEED[i] * k).toFixed(1)}px)`; });
     }
     if (footerWord) {
       const r = footerWord.getBoundingClientRect();

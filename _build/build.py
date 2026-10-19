@@ -25,8 +25,8 @@ def img(name, alt="", sizes=SIZES_FULL, cls="", priority=False):
     path = IMG / f"{name}.webp"
     w, h = Image.open(path).size
     srcset = ""
-    variants = [(v, IMG / f"{name}-w{v}.webp") for v in (800, 1200)]
-    variants = [f"assets/img/{p.name} {v}w" for v, p in variants if p.exists()]
+    variants = [(v, IMG / f"{name}-w{v}.webp") for v in (480, 800, 1200)]
+    variants = [f"assets/img/{p.relative_to(IMG).as_posix()} {v}w" for v, p in variants if p.exists()]
     if variants:
         srcset = f' srcset="{", ".join(variants + [f"assets/img/{name}.webp {w}w"])}" sizes="{sizes}"'
     load = ' fetchpriority="high"' if priority else ' loading="lazy" decoding="async"'
@@ -267,6 +267,27 @@ def fig(name, alt):
       <figure class="figure" data-scroll><div class="container">{img(name, alt)}</div></figure>'''
 
 
+def feed(main, posts, label):
+    """Instagram feed: big lead post on the left, a 3×3 grid of posts on the right."""
+    main_name, main_alt = main
+    cols = [posts[i::3] for i in range(3)]  # column-wise, like the original slide
+    col_html = "\n".join(
+        '          <div class="feed__col">'
+        + "".join(f'<figure class="feed__post" style="--d:{c};--r:{(-1) ** (c + r) * 3}deg">{img(n, a, "(min-width: 900px) 18vw, 45vw")}</figure>'
+                  for r, (n, a) in enumerate(col))
+        + "</div>"
+        for c, col in enumerate(cols))
+    return f'''
+      <section class="feed" aria-label="{label}">
+        <div class="container feed__inner">
+          <div class="feed__lead"><figure class="feed__post feed__post--main" style="--d:0;--r:-4deg">{img(main_name, main_alt, "(min-width: 900px) 34vw, 90vw")}</figure></div>
+          <div class="feed__grid">
+{col_html}
+          </div>
+        </div>
+      </section>'''
+
+
 def stage(kicker, title, *paras):
     body = "\n".join(f"            <p>{p}</p>" for p in paras)
     return f'''
@@ -345,7 +366,17 @@ OKKO = case_page(
             "Їжа, сервіси, меми, ситуативи, великі кампанії та соціальні ініціативи — за 8 років співпраці OKKO розповідало про своє життя, ритм та вподобання гостей, завжди залишаючись впізнаваним.")
     + fig("okko-collage", "Колаж кадрів зі зйомок OKKO: їжа, кава, гості на АЗК")
     + stage("Виконання", "Продукти, сервіси, ситуативи та соціальні ініціативи")
-    + fig("okko-feed-1", "Публікації OKKO в Instagram: айс-меню, ціни на пальне, новинки")
+    + feed(("okko/main-1", "Публікація OKKO «Айс меню»: чотири холодні кавові напої"), [
+        ("okko/opt-1", "Кіт на заправці OKKO: «Сварити OKKO, щоб зробили окремі каси для заправки»"),
+        ("okko/opt-2", "Пальне PULLS Diesel «Арктика −32°»: каністра в кризі"),
+        ("okko/opt-3", "Дівчина з брелоками та в’язаною сумкою біля OKKO"),
+        ("okko/opt-4", "«На АЗК знайдено той самий шоколад»"),
+        ("okko/opt-5", "Вихідні знижених цін на пальне OKKO"),
+        ("okko/opt-6", "Морозиво «Твого настрою» від OKKO летить у небі"),
+        ("okko/opt-7", "«Освіжи ідеї»: ріжок морозива з мініатюрними фігурками"),
+        ("okko/opt-8", "Новинка на OKKO — міні-хотдоги"),
+        ("okko/opt-9", "«Маленьке винце»: вина на АЗК OKKO"),
+    ], "Публікації OKKO в Instagram")
     + fig("okko-feed-2", "Соціальні ініціативи OKKO в Instagram: пульстрони, дронопад, допомога військовим")
     + stage("Результати", "Результати співпраці",
             "Ми фокусувалися не лише на зростанні фанбази, а на побудові активного ком’юніті. Постійно шукали нові теми, формати та приводи для взаємодії, щоб комунікація розвивалася разом із брендом та його аудиторією.",
