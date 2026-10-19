@@ -67,9 +67,9 @@ CASES = {
 ORDER = ["okko", "samokus", "kuriar"]
 
 
-def card(key, sizes=SIZES_CARD3, heading="h3"):
+def card(key, sizes=SIZES_CARD3, heading="h3", i=0):
     c = CASES[key]
-    return f'''<a class="case-card" href="{key}.html" data-cursor data-niche="{c["niche"]}" data-service="{c["service"]}">
+    return f'''<a class="case-card" href="{key}.html" style="--i:{i}" data-cursor data-niche="{c["niche"]}" data-service="{c["service"]}">
         <div class="media">{img(f"{key}-hero", c["alt"], sizes)}</div>
         <div class="case-card__body">
           <div class="case-card__row"><span>{c["year"]}</span><span class="case-card__kpi">{c["kpi"]}</span></div>
@@ -234,9 +234,9 @@ HOME = f'''
   <section class="section layer" id="popular" data-scroll>
     <div class="container">
       <h2 class="display">Популярні кейси</h2>
-      <div class="cards cards--2" data-stagger>
+      <div class="cards cards--2">
       {card("okko", SIZES_CARD2)}
-      {card("kuriar", SIZES_CARD2)}
+      {card("kuriar", SIZES_CARD2, i=1)}
       </div>
     </div>
   </section>
@@ -252,8 +252,8 @@ HOME = f'''
         <button class="filters__reset" type="button" hidden>Скинути ✕</button>
       </div>
 
-      <div class="cards cards--3 cases-grid" data-stagger>
-      {"".join(card(k) for k in ORDER)}
+      <div class="cards cards--3 cases-grid">
+      {"".join(card(k, i=n) for n, k in enumerate(ORDER))}
       </div>
       <p class="cases-empty" hidden>У цій категорії кейси вже в роботі — скоро покажемо. <button type="button" class="link-btn" data-reset>Показати всі</button></p>
     </div>

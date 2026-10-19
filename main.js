@@ -122,20 +122,20 @@
     footer && footer.classList.add('is-revealed');
   }
 
-  /* ================= Instagram feed: posts fly in ================= */
-  const feedPosts = document.querySelectorAll('.feed__post');
+  /* ================= Feed posts & case cards fly in ================= */
+  const feedPosts = document.querySelectorAll('.feed__post, .case-card');
   if (feedPosts.length) {
     if ('IntersectionObserver' in window && !reduced) {
       const fio = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (!e.isIntersecting) return;
-          e.target.classList.add('is-in');
+          e.target.classList.add(e.target.classList.contains('case-card') ? 'is-shown' : 'is-in');
           fio.unobserve(e.target);
         });
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
       feedPosts.forEach((p) => fio.observe(p));
     } else {
-      feedPosts.forEach((p) => p.classList.add('is-in'));
+      feedPosts.forEach((p) => p.classList.add(p.classList.contains('case-card') ? 'is-shown' : 'is-in'));
     }
   }
 
