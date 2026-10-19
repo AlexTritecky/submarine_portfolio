@@ -272,6 +272,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .story__text:empty { display: none; }
 .figure { margin: 0 0 var(--s4); }
 .figure img { width: 100%; border-radius: var(--radius); }
+.loop__video { display: block; width: 100%; aspect-ratio: 1600 / 854; object-fit: cover; border-radius: var(--radius); background: var(--surface); }
 .kpis { padding-top: 0; }
 .kpis__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s5); padding-top: var(--s5); border-top: 1px solid var(--line); }
 .kpi b { display: block; font-weight: 900; font-size: clamp(44px, 6vw, 88px); line-height: 1; letter-spacing: -.03em; color: var(--accent-cream); }

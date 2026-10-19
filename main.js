@@ -185,6 +185,20 @@
     reels.forEach((r) => rio.observe(r.el));
   }
 
+  /* ================= Looping videos: play only while on screen ================= */
+  const loops = document.querySelectorAll('.loop__video');
+  if (loops.length) {
+    const tryPlay = (v) => { const p = v.play(); if (p) p.catch(() => {}); };
+    if ('IntersectionObserver' in window) {
+      const lio = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (e.isIntersecting) tryPlay(e.target); else e.target.pause();
+      }), { threshold: 0.2 });
+      loops.forEach((v) => lio.observe(v));
+    } else {
+      loops.forEach(tryPlay);
+    }
+  }
+
   /* ================= Page transitions ================= */
   const veil = document.querySelector('.page-transition');
   const root = document.documentElement;
