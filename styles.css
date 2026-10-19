@@ -117,7 +117,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tags { margin: 0; font-size: var(--fs-small); color: var(--text-muted); }
 
 /* line mask reveal */
-.line { display: flex; align-items: center; overflow: hidden; padding-bottom: .02em; }
+.line { display: flex; align-items: center; padding-bottom: .02em; clip-path: inset(-.2em -.3em 0 -.3em); } /* clip only the bottom edge for the reveal; tight tracking spills past the sides */
 .line__in { display: block; }
 .js .line__in { transform: translateY(105%); transition: transform 1s var(--ease); }
 .js .is-revealed .line__in { transform: none; }
