@@ -25,7 +25,7 @@ def img(name, alt="", sizes=SIZES_FULL, cls="", priority=False):
     path = IMG / f"{name}.webp"
     w, h = Image.open(path).size
     srcset = ""
-    variants = [(v, IMG / f"{name}-w{v}.webp") for v in (480, 800, 1200)]
+    variants = []  # one file per image for now (no srcset)
     variants = [f"assets/img/{p.relative_to(IMG).as_posix()} {v}w" for v, p in variants if p.exists()]
     if variants:
         srcset = f' srcset="{", ".join(variants + [f"assets/img/{name}.webp {w}w"])}" sizes="{sizes}"'
