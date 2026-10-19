@@ -3,6 +3,7 @@
 Run from the repo root:  python3 _build/build.py
 """
 from pathlib import Path
+import hashlib
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +15,11 @@ LENIS = "https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"
 SIZES_FULL = "(min-width: 1440px) 1280px, calc(100vw - 2 * var(--gutter, 20px))"
 SIZES_CARD3 = "(min-width: 1100px) 410px, (min-width: 700px) 50vw, 100vw"
 SIZES_CARD2 = "(min-width: 1440px) 630px, (min-width: 700px) 50vw, 100vw"
+
+
+def ver(path):
+    """Short content hash so browsers fetch the new file after each deploy."""
+    return hashlib.md5((ROOT / path).read_bytes()).hexdigest()[:8]
 
 
 def dims(name):
@@ -107,7 +113,7 @@ def head(title, desc, og_image, path):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v={ver("styles.css")}">
   <script>(function(d){{d.classList.add('js');try{{if(sessionStorage.getItem('pt')){{d.classList.add('pt-enter');sessionStorage.removeItem('pt')}}}}catch(e){{}}}})(document.documentElement);</script>
 </head>
 <body>
@@ -155,7 +161,7 @@ FOOTER = f'''
 </footer>
 
 <script src="{LENIS}" defer></script>
-<script src="main.js" defer></script>
+<script src="main.js?v={ver("main.js")}" defer></script>
 </body>
 </html>
 '''
@@ -300,6 +306,28 @@ def feed(label, *sets):
       </section>'''
 
 
+PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>'
+PAUSE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg>'
+SOUND_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+SOUND_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+
+
+def reels(label, *items):
+    """Inline 9:16 videos: poster + play button, they play right in the card."""
+    cards = "\n".join(f'''          <figure class="reel">
+            <video class="reel__video" src="assets/video/{src}.mp4" poster="assets/video/{src}.webp" preload="none" playsinline loop aria-label="{alt}"></video>
+            <button class="reel__play" type="button" aria-label="Відтворити: {alt}"><span class="reel__icon reel__icon--play">{PLAY_ICON}</span><span class="reel__icon reel__icon--pause">{PAUSE_ICON}</span></button>
+            <button class="reel__sound" type="button" aria-label="Вимкнути звук"><span class="reel__icon reel__icon--on">{SOUND_ON}</span><span class="reel__icon reel__icon--off">{SOUND_OFF}</span></button>
+            <span class="reel__bar" aria-hidden="true"><i></i></span>
+          </figure>''' for src, alt in items)
+    return f'''
+      <section class="reels" aria-label="{label}" data-scroll>
+        <div class="container reels__grid" data-stagger>
+{cards}
+        </div>
+      </section>'''
+
+
 def stage(kicker, title, *paras):
     body = "\n".join(f"            <p>{p}</p>" for p in paras)
     return f'''
@@ -420,7 +448,10 @@ SAMOKUS = case_page(
             "А коли SAMOKUS почав активно з’являтися на офлайн-подіях — інтегрували їх у контент, знайомлячи з брендом не лише власників собак, а й потенційних B2B-партнерів.")
     + fig("samokus-photos", "Фотозйомка собак різних порід із морозивом Samokus")
     + fig("samokus-feed", "Публікації Samokus в Instagram: смаки, інструкції, розіграш")
-    + fig("samokus-reels", "Кадри з Reels Samokus")
+    + reels("Reels Samokus",
+            ("samokus/reel-1", "Чорний пес куштує морозиво Samokus на вулиці"),
+            ("samokus/reel-2", "Собаки співають на сцені Samokus"),
+            ("samokus/reel-3", "Доберман обирає між трьома смаками Samokus"))
     + stage("Інфлюенс", "Слово дегустаторам",
             "Щоб новий продукт швидше знаходив свою аудиторію, ми залучили pet-блогерів та UGC-креаторів: сформували базу релевантних dog-акаунтів і супроводжували бартерні співпраці — від перших домовленостей до виходу контенту.")
     + fig("samokus-ugc", "UGC-контент pet-блогерів із морозивом Samokus")

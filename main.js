@@ -139,6 +139,52 @@
     }
   }
 
+  /* ================= Reels: inline video players ================= */
+  const reels = [...document.querySelectorAll('.reel')].map((el) => ({
+    el,
+    video: el.querySelector('video'),
+    play: el.querySelector('.reel__play'),
+    sound: el.querySelector('.reel__sound'),
+  }));
+  const pauseOthers = (except) => reels.forEach((r) => { if (r !== except && !r.video.paused) r.video.pause(); });
+  reels.forEach((r) => {
+    const { el, video } = r;
+    const toggle = () => {
+      if (video.paused) {
+        pauseOthers(r);
+        if (!el.classList.contains('is-started')) { video.muted = false; el.classList.add('is-started'); }
+        video.play().catch(() => { video.muted = true; el.classList.add('is-muted'); video.play(); });
+      } else {
+        video.pause();
+      }
+    };
+    r.play.addEventListener('click', toggle);
+    video.addEventListener('click', toggle);
+    video.addEventListener('play', () => {
+      el.classList.add('is-playing');
+      r.play.setAttribute('aria-label', r.play.getAttribute('aria-label').replace('Відтворити', 'Пауза'));
+    });
+    video.addEventListener('pause', () => {
+      el.classList.remove('is-playing');
+      r.play.setAttribute('aria-label', r.play.getAttribute('aria-label').replace('Пауза', 'Відтворити'));
+    });
+    video.addEventListener('timeupdate', () => {
+      if (video.duration) el.style.setProperty('--p', (video.currentTime / video.duration).toFixed(4));
+    });
+    r.sound.addEventListener('click', () => {
+      video.muted = !video.muted;
+      el.classList.toggle('is-muted', video.muted);
+      r.sound.setAttribute('aria-label', video.muted ? 'Увімкнути звук' : 'Вимкнути звук');
+    });
+  });
+  // pause a reel once it is scrolled out of view
+  if (reels.length && 'IntersectionObserver' in window) {
+    const rio = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) { const v = e.target.querySelector('video'); if (!v.paused) v.pause(); }
+    }), { threshold: 0.25 });
+    reels.forEach((r) => rio.observe(r.el));
+  }
+
   /* ================= Page transitions ================= */
   const veil = document.querySelector('.page-transition');
   const root = document.documentElement;
