@@ -121,7 +121,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .line__in { display: block; }
 .js .line__in { transform: translateY(105%); transition: transform 1s var(--ease); }
 .js .is-revealed .line__in { transform: none; }
-.js .is-revealed .line:nth-child(2) .line__in { transition-delay: .12s; }
+.line-row { display: flex; align-items: center; }
+.js .is-revealed .line-row .line__in { transition-delay: .12s; }
 
 /* =========================================================
    Media & cards
@@ -289,8 +290,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .footer__contacts a { text-decoration: none; overflow-wrap: anywhere; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .35s var(--ease), color .2s; }
 .footer__contacts a:hover { color: var(--accent-pink); background-size: 100% 1px; }
 .footer__bottom { display: flex; align-items: center; gap: var(--s4); margin-top: var(--s8); font-size: var(--fs-small); color: var(--text-muted); }
-.footer__social { display: inline-grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; color: var(--text); transition: color .2s, border-color .2s; }
-.footer__social:hover { color: var(--accent-pink); border-color: var(--accent-pink); }
 .to-top { margin-left: auto; text-decoration: none; color: var(--text); font-weight: 500; transition: color .2s; }
 .to-top:hover { color: var(--accent-pink); }
 

@@ -200,7 +200,7 @@
   // Every [data-scroll] block fades out as it leaves the top of the viewport
   // while the next block rises into its place. Pinned (.pin) slides stay put
   // and dissolve as the following layer slides over them.
-  const heroLines = hero ? [...hero.querySelectorAll('.line')] : [];
+  const heroLines = hero ? [...hero.querySelectorAll('.hero__word > span')] : [];
   const footerWord = document.querySelector('.footer__word');
 
   const blocks = [...document.querySelectorAll('[data-scroll]')].map((el) => ({
