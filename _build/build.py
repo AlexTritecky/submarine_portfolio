@@ -252,7 +252,7 @@ HOME = f'''
       <h2 class="display">Популярні кейси</h2>
       <div class="cards cards--2">
       {card("okko", SIZES_CARD2)}
-      {card("kuriar", SIZES_CARD2, i=1)}
+      {card("svizhyna", SIZES_CARD2, i=1)}
       </div>
     </div>
   </section>
