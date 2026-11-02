@@ -69,14 +69,24 @@ CASES = {
         service="smm-strategy smm creative production influence ads",
         alt="Мариновані курячі гомілки Куріяр на дерев’яній дошці зі спеціями",
     ),
+    "svizhyna": dict(
+        title="Галицька Свіжина: свіжий погляд на м’ясний SMM",
+        year="2026 — дотепер",
+        kpi="15+ виїзних зйомок",
+        tags="FMCG · SMM · Креатив · Продакшн · Реклама",
+        niche="fmcg",
+        service="smm creative production ads influence",
+        alt="Мариноване м’ясо на тарілці та крафтовий пакет Галицької Свіжини",
+        hero="gal-svizina/hero",
+    ),
 }
-ORDER = ["okko", "samokus", "kuriar"]
+ORDER = ["okko", "samokus", "kuriar", "svizhyna"]
 
 
 def card(key, sizes=SIZES_CARD3, heading="h3", i=0):
     c = CASES[key]
     return f'''<a class="case-card" href="{key}.html" style="--i:{i}" data-cursor data-niche="{c["niche"]}" data-service="{c["service"]}">
-        <div class="media">{img(f"{key}-hero", c["alt"], sizes)}</div>
+        <div class="media">{img(c.get("hero", f"{key}-hero"), c["alt"], sizes)}</div>
         <div class="case-card__body">
           <div class="case-card__row"><span>{c["year"]}</span><span class="case-card__kpi">{c["kpi"]}</span></div>
           <{heading} class="card-title">{c["title"]}</{heading}>
@@ -258,8 +268,8 @@ HOME = f'''
         <button class="filters__reset" type="button" hidden>Скинути ✕</button>
       </div>
 
-      <div class="cards cards--3 cases-grid">
-      {"".join(card(k, i=n) for n, k in enumerate(ORDER))}
+      <div class="cards cards--2 cases-grid">
+      {"".join(card(k, SIZES_CARD2, i=n % 2) for n, k in enumerate(ORDER))}
       </div>
       <p class="cases-empty" hidden>У цій категорії кейси вже в роботі — скоро покажемо. <button type="button" class="link-btn" data-reset>Показати всі</button></p>
     </div>
@@ -336,6 +346,13 @@ def loop_video(src, alt):
       </div></figure>'''
 
 
+def triptych(*items):
+    """Three slides side by side (strategy / moodboard pages)."""
+    cells = "".join(f'<figure class="triptych__item">{img(n, a, "(min-width: 900px) 30vw, 90vw")}</figure>' for n, a in items)
+    return f'''
+      <div class="triptych" data-scroll><div class="container triptych__grid" data-stagger>{cells}</div></div>'''
+
+
 def stage(kicker, title, *paras):
     body = "\n".join(f"            <p>{p}</p>" for p in paras)
     return f'''
@@ -375,7 +392,7 @@ def case_page(key, num, logo, logo_alt, partner, period, tagline, facts, content
         <div class="container">
           <div class="case-hero__top"><span>{partner} × SUBMARINE</span><span>Період співпраці: {period}</span></div>
           <div class="case-hero__body">
-            <div class="media">{img(f"{key}-hero", c["alt"], "(min-width: 900px) 62vw, 100vw", priority=True)}</div>
+            <div class="media">{img(c.get("hero", f"{key}-hero"), c["alt"], "(min-width: 900px) 62vw, 100vw", priority=True)}</div>
             <div class="case-hero__brand">
               <h1 class="case-hero__logo"><img src="assets/img/{logo}.webp" alt="{logo_alt}" {dims(logo)} fetchpriority="high"></h1>
               <p class="case-hero__tagline">{tagline}</p>
@@ -493,10 +510,50 @@ KURIAR = case_page(
     + fig("kuriar-growth", "Профілі Куріяр до та після: Instagram 471 → 2 007 підписників (+326%), Facebook 1 400 → 4 900 (+250%)"),
 )
 
+SVIZHYNA = case_page(
+    "svizhyna", 4, "gal-svizina/logo", "Галицька Свіжина", "ГАЛИЦЬКА СВІЖИНА", "липень 2026 — дотепер",
+    "Свіжий погляд на м’ясний SMM",
+    ("FMCG / Продукти та напої", ["Комплексний SMM", "Креатив", "Продакшн", "Рекламні кампанії", "Медіа та інфлюенс-маркетинг"],
+     ["Instagram", "Facebook", "AI Generation", "Фото- та відеопродакшн"]),
+    stage("Задача", "Велика мережа — єдині правила комунікації",
+          "Масштабна мережа потребує не менш масштабного підходу до комунікації. Тож перш ніж створювати контент, ми заклали для нього міцний фундамент: проаналізували ринок і конкурентів, визначили напрям розвитку соцмереж та сформували внутрішню систему візуальних і комунікаційних правил — від стилю дизайну і тональності повідомлень до принципів подачі продукту, акцій та новин мережі.")
+    + triptych(("gal-svizina/macro-1", "Правила візуалу: макрокадри"),
+               ("gal-svizina/macro-2", "Мудборд Галицької Свіжини"),
+               ("gal-svizina/macro-3", "Правила візуалу: фірмовий червоний фон"))
+    + fig("gal-svizina/brand", "Айдентика соцмереж: стікери «BBQ-сезон разом», обкладинки Facebook, highlights, фони для репостів")
+    + stage("Виконання", "Контент і продакшн",
+            "Бренд живе в активному ритмі, а ми перетворюємо цей рух на контент. Регулярно організовуємо фото- та відеозйомки, працюємо з різними форматами і завданнями: від продуктових кадрів, що стимулюють продажі, до розважального контенту та креативних рекламних роликів.",
+            "Наш підхід — знаходити комунікаційні можливості. Перетворювати події на інфоприводи, продукти — на бажання купити, а щоденне життя великої мережі — на контент, який формує впізнаваність і підтримує інтерес аудиторії.")
+    + fig("gal-svizina/photos", "Фотозйомка продукції Галицької Свіжини: стейк, ковбаски на грилі, вареники, застілля")
+    + feed("Публікації Галицької Свіжини в Instagram", (("gal-svizina/posts/post-7", "«Смаки, які ми пам’ятаємо з дитинства»: запечена курка з томатами"), [
+        ("gal-svizina/posts/post-1", "Ковбаса Наминака серед лаврового листя та перцю"),
+        ("gal-svizina/posts/post-2", "«М’ясний експрес»: швидка доставка по Львову та околицях"),
+        ("gal-svizina/posts/post-3", "20% з продажу — на підтримку фонду «Повернись живим»"),
+        ("gal-svizina/posts/post-4", "Червоні шафки з продукцією Наминака: «нехай смакує!»"),
+        ("gal-svizina/posts/post-5", "Ідеальний гарнір у Галицькій Свіжині: пошук Google на столі"),
+        ("gal-svizina/posts/post-6", "Шашлик «Вершкова ніжність»: 20% на підтримку «Пташок перемоги»"),
+        ("gal-svizina/posts/post-8", "«Набрид класичний шашлик? Спробуйте індичку» в брусничному маринаді"),
+        ("gal-svizina/posts/post-9", "Стейк рамп на тлі гір"),
+        ("gal-svizina/posts/post-10", "Топ сендвічів на сніданок"),
+        ("gal-svizina/posts/post-11", "Сендвіч з напівкопченою ковбаскою: рецепт"),
+        ("gal-svizina/posts/post-12", "Мангал: ковбаски для гриля, мариновані овочі, кукурудза"),
+        ("gal-svizina/posts/post-13", "5 помилок, які псують аргентинський стейк"),
+    ]))
+    + reels("Відео Галицької Свіжини",
+            ("svizhyna/reel-1", "Кур’єр із пакетом Галицької Свіжини на порозі"),
+            ("svizhyna/reel-2", "Шеф-кухар і юна помічниця готують на кухні Галицької Свіжини"),
+            ("svizhyna/reel-3", "Літнє застілля з ковбасками та стравами на грилі"))
+    + fig("gal-svizina/vatra", "Креативна кампанія «Ватра» — гуцул і гаучо: split-screen серія про карпатську ватру та аргентинське асадо, які говорять однією мовою — мовою вогню")
+    + stage("Результати", "Результати співпраці",
+            "За 4 місяці ми відзняли та запустили рекламну кампанію, організували 2 професійні продакшн-зйомки та понад 15 виїзних зйомок під актуальні потреби бренду. Розробили та реалізували креативну кампанію для запуску нового продукту.",
+            "Продовжуємо працювати з новими форматами, ідеями та інфоприводами, перетворюючи активне життя Галицької Свіжини на системну та впізнавану комунікацію."),
+)
+
 page("index.html", "Портфоліо — Submarine Creative Agency",
      "Портфоліо Submarine Creative Agency: стратегія, креатив, SMM та інфлюенс-маркетинг з 2018 року.",
      "home", HOME, home=True)
 page("okko.html", "OKKO — кейс Submarine", "OKKO × Submarine: 8 років комунікації АЗК у режимі non-stop.", "okko", OKKO)
 page("samokus.html", "Samokus — кейс Submarine", "Samokus × Submarine: запуск бренду морозива для собак.", "samokus", SAMOKUS)
 page("kuriar.html", "Куріяр — кейс Submarine", "Куріяр × Submarine: системна присутність бренду в Instagram та Facebook.", "kuriar", KURIAR)
-print("built 4 pages")
+page("svizhyna.html", "Галицька Свіжина — кейс Submarine", "Галицька Свіжина × Submarine: свіжий погляд на м’ясний SMM для великої мережі.", "svizhyna", SVIZHYNA)
+print(f"built {len(ORDER) + 1} pages")

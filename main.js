@@ -311,7 +311,7 @@
   const DRIFT = [0.06, 0.6];   // drift window
   const OUT = [0.6, 0.9];      // this set leaves
   const IN = [0.7, 1.0];       // next set arrives (overlaps the exit)
-  const MAXD = 4.2;            // largest --d (diagonal wave: column + 0.6 × row)
+  const MAXD = 4.8;            // largest --d (diagonal wave: column + 0.6 × row, up to 4 rows)
   const STAGGER = 0.035;       // delay per wave step inside a window
   const win = (t, [a, b], d = 0) => smooth(clamp((t - a - d * STAGGER) / (b - a - MAXD * STAGGER)));
 
